@@ -1,0 +1,6 @@
+---
+app_dir: /root
+wg_host: supervpn.ru
+wg_password: superpassword
+certbot_email: ttrash@supervpn.ru
+

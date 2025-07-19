@@ -1,0 +1,4 @@
+---
+wg_host: vpn.example.com
+wg_password: <password>
+certbot_email: private@example.com

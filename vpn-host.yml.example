@@ -1,0 +1,8 @@
+---
+vpn:
+    hosts:
+        server:
+            ansible_connection: ssh
+            ansible_user: root
+            ansible_host: <Your host IP>
+            ansible_port: 22

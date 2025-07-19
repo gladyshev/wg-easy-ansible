@@ -1,0 +1,54 @@
+---
+- name: Debug
+  debug:
+    msg:
+      - "Setup for host: {{ app_dir }}"
+      - "Setup for host: {{ wg_host }}"
+      - "Using certbot email: {{ certbot_email }}"
+
+- name: Ensure the application directory exists
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Generate password hash
+  shell: docker run --rm ghcr.io/wg-easy/wg-easy wgpw "{{ wg_password }}"
+  register: password_hash_result
+
+- name: Extract result and put hash in variable
+  set_fact:
+    wg_password_hash: "{{ password_hash_result.stdout | regex_replace(\"^PASSWORD_HASH='(.*)'$\", '\\1') | regex_replace('\\$', '$$') }}"
+
+- name: Deploy the docker-compose.yml file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ app_dir }}/docker-compose.yaml"
+    mode: '0644'
+
+- name: Ensure the Nginx configuration directory exists
+  file:
+    path: "{{ app_dir }}/nginx/servers"
+    state: directory
+    mode: '0755'
+
+- name: Deploy the Nginx configuration
+  template:
+    src: nginx.conf.j2
+    dest: "{{ app_dir }}/nginx/servers/wg-easy.conf"
+    mode: '0644'
+
+- name: Start services using docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}"
+    pull: always
+    state: present
+
+- name: Copy Nginx configuration into active conf.d directory
+  shell: docker exec nginx cp /etc/nginx/servers/wg-easy.conf /etc/nginx/conf.d/.
+
+- name: Generate SSL certificates using Certbot
+  shell: docker exec nginx certbot --nginx --non-interactive --agree-tos -m {{ certbot_email }} -d {{ wg_host }}
+
+- name: Reload Nginx to apply changes
+  shell: docker exec nginx nginx -s reload

@@ -1,0 +1,10 @@
+---
+-   name: Provision VPN host
+    hosts: all
+    become: yes
+    remote_user: root
+    vars_files:
+      - vpn-config.yml
+    roles:
+      - docker
+      - wg-easy
