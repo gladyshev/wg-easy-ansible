@@ -1,5 +1,7 @@
 # Wg-easy + nginx + certbot ansible playbook
 
+Your personal VPN based on [wg-easy](https://github.com/wg-easy/wg-easy) and [nginx](https://github.com/WeeJeWel/nginx-with-certbot)
+
 ## 0. Clone repository, make sure [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) is installed
 
 ```shell
